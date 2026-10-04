@@ -103,3 +103,20 @@ async def test_visual_focus_controls_actual_assignment(store, session, services)
     p = store.get(sid)["state"]["proposal"]
     await a.execute(sid, p["id"])
     assert store.get(sid)["state"]["assignments"]["led"]["zone"] == "atelier"
+
+
+async def test_lower_budget_can_switch_equipment_before_declaring_failure(store, session, services):
+    sid = session["id"]
+    services.interact(sid, "context", {"id": "m-access"})
+    services.interact(sid, "constraint", {"key": "budget", "value": 4900})
+    await Orchestrator(store).prepare(sid, "Préparer avec moins de budget")
+    p = store.get(sid)["state"]["proposal"]
+    assert p["plan"]["space_id"] == "halle" and "screen" in p["plan"]["resource_ids"]
+    assert p["budget"]["total"] == 4870
+
+
+async def test_mcp_client_is_bound_to_one_session(store, session):
+    other = store.create("Other")["id"]
+    async with Orchestrator(store).gateway(session["id"]) as client:
+        result = await client.call_tool("Workspace", {"session_id": other, "args": {}})
+        assert result.isError

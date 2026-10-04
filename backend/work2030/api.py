@@ -45,7 +45,7 @@ def create_app(store=None):
         db.seed_five()
         for g in db.list():
             if (g["state"].get("proposal") or {}).get("status") == "executing":
-                db.undo(g["id"])
+                db.undo(g["id"], allow_paused=True)
                 db.event(g["id"], "mission.error", {"message": "Exécution interrompue par un redémarrage ; état restauré"})
         yield
         for t in tasks.values():
@@ -108,6 +108,10 @@ def create_app(store=None):
     def health():
         return {"status": "ok", "version": "0.1.0", "mode": "local", "sessions": len(db.list())}
 
+    @app.get("/cartes")
+    def printable_cards():
+        return FileResponse(ROOT / "docs/cards.html")
+
     @app.get("/api/sessions")
     def groups():
         return [{"id": g["id"], "name": g["name"], "phase": g["state"]["phase"]} for g in db.list()]
@@ -119,7 +123,10 @@ def create_app(store=None):
     @app.post("/api/sessions/{sid}/actions")
     def action(sid: str, body: Action):
         idle(sid)
-        services.interact(sid, body.action, body.data)
+        try:
+            services.interact(sid, body.action, body.data)
+        except (KeyError, TypeError) as e:
+            raise DomainError("Paramètres de manipulation incomplets ou invalides") from e
         return view(sid)
 
     @app.get("/api/sessions/{sid}/memory")

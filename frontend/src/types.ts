@@ -1,12 +1,121 @@
-export type Memory = {id:string;title:string;text:string;source:string;date:string;tags:string[];superseded_by:string|null;visual?:boolean}
-export type Resource = {id:string;name:string;kind:string;cost:number;available:boolean;allowed_zones:string[]}
-export type Zone = {id:string;name:string;capacity:number;x:number;y:number;w:number;h:number}
-export type Space = {id:string;name:string;capacity:number;cost:number;accessible:boolean;aisle_cm:number;quiet_capacity:number;zones:Zone[]}
-export type Assignment = {resource_id:string;zone:string;start:string;end:string}
-export type Constraints = {budget:number;visitors:number;aisle_cm:number;quiet_places:number}
-export type Recipe = {variable:string;zone:string;start:string;end:string;steps:Assignment[]}
-export type Proposal = {id:string;status:string;plan:{space_id:string;resource_ids:string[];occupancy:Record<string,number>};budget:{total:number;limit:number;lines:{name:string;amount:number}[]};warnings:string[];reason:string;source:string}
-export type Document = {id:string;title:string;content:string}
-export type State = {memory:Memory[];spaces:Space[];resources:Resource[];context:string[];constraints:Constraints;space_id:string;assignments:Record<string,Assignment>;phase:number;paused:boolean;roles:number;recording:boolean;recorded:Assignment[];recipe:Recipe|null;last_replay:{count:number}|null;annotations:{id:string;points:number[][];label:string}[];proposal:Proposal|null;budget:Proposal['budget']|null;documents:Document[];messages:Document[];schedule:{id:string;name:string;start:string;end:string;zone:string}[];perturbation:string|null;goal:string;provider:string}
-export type Group = {id:string;name:string;revision:number;state:State;active:boolean;effective_constraints:Constraints;proposal_stale:boolean;api_reserved_usd:number}
-export type Trace = {id:number;time:string;kind:string;payload:Record<string,unknown>}
+export type Memory = {
+  id: string;
+  title: string;
+  text: string;
+  source: string;
+  date: string;
+  tags: string[];
+  superseded_by: string | null;
+  visual?: boolean;
+};
+export type Resource = {
+  id: string;
+  name: string;
+  kind: string;
+  cost: number;
+  available: boolean;
+  allowed_zones: string[];
+};
+export type Zone = {
+  id: string;
+  name: string;
+  capacity: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+export type Space = {
+  id: string;
+  name: string;
+  capacity: number;
+  cost: number;
+  accessible: boolean;
+  aisle_cm: number;
+  quiet_capacity: number;
+  zones: Zone[];
+};
+export type Assignment = {
+  resource_id: string;
+  zone: string;
+  start: string;
+  end: string;
+};
+export type Constraints = {
+  budget: number;
+  visitors: number;
+  aisle_cm: number;
+  quiet_places: number;
+};
+export type Recipe = {
+  variable: string;
+  zone: string;
+  start: string;
+  end: string;
+  steps: Assignment[];
+};
+export type Proposal = {
+  id: string;
+  status: string;
+  plan: {
+    space_id: string;
+    resource_ids: string[];
+    occupancy: Record<string, number>;
+  };
+  budget: {
+    total: number;
+    limit: number;
+    lines: { name: string; amount: number }[];
+  };
+  warnings: string[];
+  reason: string;
+  source: string;
+};
+export type Document = { id: string; title: string; content: string };
+export type State = {
+  memory: Memory[];
+  spaces: Space[];
+  resources: Resource[];
+  context: string[];
+  constraints: Constraints;
+  space_id: string;
+  assignments: Record<string, Assignment>;
+  phase: number;
+  paused: boolean;
+  roles: number;
+  recording: boolean;
+  recorded: Assignment[];
+  recipe: Recipe | null;
+  last_replay: { count: number } | null;
+  annotations: { id: string; points: number[][]; label: string }[];
+  proposal: Proposal | null;
+  budget: Proposal["budget"] | null;
+  documents: Document[];
+  messages: Document[];
+  schedule: {
+    id: string;
+    name: string;
+    start: string;
+    end: string;
+    zone: string;
+  }[];
+  perturbation: string | null;
+  goal: string;
+  provider: string;
+};
+export type Group = {
+  id: string;
+  name: string;
+  revision: number;
+  state: State;
+  active: boolean;
+  effective_constraints: Constraints;
+  proposal_stale: boolean;
+  api_reserved_usd: number;
+};
+export type Trace = {
+  id: number;
+  time: string;
+  kind: string;
+  payload: Record<string, unknown>;
+};

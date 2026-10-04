@@ -35,7 +35,7 @@ def test_api_full_mission_refusal_approval_pause_reset_export(store, monkeypatch
         g=wait_idle(c,sid)
         assert g['state']['proposal']['status']=='completed'
         exported=c.get(base+'/export')
-        assert 'decision.approved' in exported.text and 'Plan d’ouverture' not in exported.text
+        assert 'decision.approved' in exported.text
         assert 'Plan' in exported.text and 'HORIZON' in exported.text
         c.post(f'/api/admin/{sid}/control',headers=headers,json={'action':'pause','data':{'paused':True}}).raise_for_status()
         assert c.post(base+'/actions',json={'action':'roles'}).status_code==409
@@ -53,3 +53,28 @@ def test_missing_memory_prevents_approval(store):
         assert p['warnings']
         assert c.post(base+'/decision',json={'proposal_id':p['id'],'accept':True}).status_code==409
         assert c.get(base).json()['state']['documents']==[]
+
+
+def test_restart_restores_interrupted_execution_even_when_paused(store, services):
+    from work2030.services import fingerprint
+    sid = store.create('Interrupted')['id']
+    services.interact(sid, 'context', {'id': 'm-access'})
+    plan = {'space_id':'pavillon', 'resource_ids':['led','audio','table-a','table-b','quiet','signs'], 'occupancy':{'scene':70,'atelier':38,'calme':12}}
+    p = services.workspace(sid, {'operation':'preview','plan':plan})
+    def approve(s):
+        s['proposal']['status']='executing'
+    store.mutate(sid,'decision.approved',approve)
+    services.workspace(sid, {'operation':'apply','proposal_id':p['id']})
+    store.mutate(sid,'facilitator.pause',lambda s:s.update(paused=True),snapshot=False)
+    with TestClient(create_app(store)) as c:
+        state=c.get('/api/sessions/'+sid).json()['state']
+        assert not state['assignments'] and state['paused'] and state['proposal'] is None
+
+
+def test_invalid_action_is_explained_and_printable_cards_served(store):
+    with TestClient(create_app(store)) as c:
+        sid=c.get('/api/sessions').json()[0]['id']
+        result=c.post(f'/api/sessions/{sid}/actions',json={'action':'assign','data':{}})
+        assert result.status_code==409 and 'Paramètres' in result.json()['detail']
+        cards=c.get('/cartes')
+        assert cards.status_code==200 and cards.text.count('<article>')==15

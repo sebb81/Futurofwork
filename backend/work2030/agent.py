@@ -52,23 +52,27 @@ class Orchestrator:
             workspace = await self.call(client, sid, "Workspace", {})
             c = workspace["constraints"]
             available = {r["id"] for r in resources["items"] if r["available"]}
-            display = "led" if "led" in available else "screen"
-            ids = [display, "audio", "table-a", "table-b", "quiet", "signs"]
-            if not set(ids).issubset(available):
+            displays = [d for d in ["led", "screen"] if d in available]
+            base_ids = ["audio", "table-a", "table-b", "quiet", "signs"]
+            if not displays or not set(base_ids).issubset(available):
                 raise DomainError("Aucune solution : un équipement essentiel n'a pas d'alternative disponible")
             candidates = []
             for space in spaces["items"]:
                 if not space["accessible"] or space["capacity"] < c["visitors"] or space["aisle_cm"] < c["aisle_cm"] or space["quiet_capacity"] < c["quiet_places"]:
                     continue
-                budget = await self.call(client, sid, "Budget", {"space_id": space["id"], "resource_ids": ids})
-                if budget["total"] <= c["budget"]:
-                    candidates.append({**space, "total": budget["total"]})
+                for display in displays:
+                    ids = [display, *base_ids]
+                    budget = await self.call(client, sid, "Budget", {"space_id": space["id"], "resource_ids": ids})
+                    if budget["total"] <= c["budget"]:
+                        candidates.append({**space, "total": budget["total"], "resource_ids": ids})
+                        break
             if alternative and previous:
                 candidates = [s for s in candidates if s["id"] != previous["plan"]["space_id"]]
             if not candidates:
                 raise DomainError("Aucun espace ne respecte ces contraintes. Modifiez le budget ou la fréquentation.")
             chosen, reason = await self.advisor.choose(sid, goal, candidates, provider)
             space = next(s for s in candidates if s["id"] == chosen)
+            ids = space["resource_ids"]
             calm = min(space["quiet_capacity"], c["visitors"])
             stage = min(space["zones"][0]["capacity"], max(0, c["visitors"] - calm))
             occupancy = {"scene": stage, "atelier": c["visitors"] - calm - stage, "calme": calm}

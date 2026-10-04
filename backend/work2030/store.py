@@ -1,5 +1,6 @@
 import copy
 import json
+import math
 import os
 import sqlite3
 import threading
@@ -122,18 +123,20 @@ class Store:
             db.execute("DELETE FROM snapshots WHERE session_id=?", (sid,))
         # API reservations stay charged: resetting is not a way to bypass a spend cap.
 
-    def undo(self, sid):
+    def undo(self, sid, allow_paused=False):
         with self.lock, self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             r = db.execute("SELECT * FROM snapshots WHERE session_id=? ORDER BY id DESC LIMIT 1", (sid,)).fetchone()
             if not r:
                 raise DomainError("Aucune modification à restaurer")
             current = db.execute("SELECT state FROM sessions WHERE id=?", (sid,)).fetchone()
-            if json.loads(current["state"])["paused"]:
+            paused = json.loads(current["state"])["paused"]
+            if paused and not allow_paused:
                 raise DomainError("Session en pause")
             state = json.loads(r["state"])
             state["proposal"] = None
             state["recording"] = False
+            state["paused"] = paused
             db.execute("UPDATE sessions SET state=?,revision=revision+1 WHERE id=?", (json.dumps(state), sid))
             db.execute("DELETE FROM snapshots WHERE id=?", (r["id"],))
             self._event(db, sid, "workspace.undo", {"restored": r["label"]})
@@ -142,7 +145,7 @@ class Store:
         with self.lock, self.connect() as db:
             db.execute("BEGIN IMMEDIATE")
             r = db.execute("SELECT spent FROM sessions WHERE id=?", (sid,)).fetchone()
-            if not r or r["spent"] + amount > cap or amount <= 0:
+            if not math.isfinite(amount) or not math.isfinite(cap) or not r or r["spent"] + amount > cap or amount <= 0:
                 raise DomainError("Plafond de réservation API atteint ; utilisez le mode démo")
             db.execute("UPDATE sessions SET spent=spent+? WHERE id=?", (amount, sid))
 

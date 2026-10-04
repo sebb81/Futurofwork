@@ -42,6 +42,9 @@ def check_assignment(s, rid, zone, start, end):
         raise DomainError("Créneau invalide")
     if start < "08:00" or end > "12:00":
         raise DomainError("Le matériel doit être disponible entre 08:00 et 12:00")
+    events = [e for e in s["calendar"] if e["zone"] == zone]
+    if events and (start > min(e["start"] for e in events) or end < max(e["end"] for e in events)):
+        raise DomainError("Le créneau matériel ne couvre pas la disponibilité de l'intervenant dans cette zone")
     return {"resource_id": rid, "zone": zone, "start": start, "end": end}
 
 
