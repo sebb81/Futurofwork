@@ -1,0 +1,30 @@
+{
+  "memory": [
+    {"id":"m-access-old","title":"Premier repérage — accès","text":"Le premier plan prévoyait un passage de 90 cm. Cette mesure est obsolète.","source":"Compte rendu / 29 septembre","date":"2026-09-29","tags":["accessibilité","passage","plan"],"superseded_by":"m-access"},
+    {"id":"m-access","title":"Décision accessibilité confirmée","text":"Maintenir un cheminement libre de 140 cm et une zone calme de 12 places, accessible sans marches. Cette décision remplace le repérage à 90 cm.","source":"Validation référente accessibilité / 2 octobre","date":"2026-10-02","tags":["accessibilité","zone calme","plan","140 cm"],"superseded_by":null},
+    {"id":"m-projector","title":"Le projecteur écarté","text":"Le projecteur laser a été écarté : bruit du ventilateur et coût de 950 €. Le mur LED silencieux est préféré.","source":"Décision équipement / 1 octobre","date":"2026-10-01","tags":["équipement","projecteur","bruit","écarté"],"superseded_by":null},
+    {"id":"m-plan","title":"Croquis du Pavillon — oasis calme","text":"Plan du Pavillon : scène au nord, ateliers à l'est, oasis calme à l'ouest. L'oasis accueille 12 personnes, à l'écart de la sonorisation.","source":"Pièce jointe / croquis-pavillon.svg","date":"2026-10-02","tags":["plan","zone calme","document","croquis"],"visual":true,"superseded_by":null},
+    {"id":"m-budget","title":"Enveloppe et fréquentation","text":"120 visiteurs attendus. Budget total maximal 6 000 €, incluant le lieu, le matériel, l'accessibilité et une réserve de 400 €.","source":"Brief HORIZON / 2 octobre","date":"2026-10-02","tags":["budget","120","6000"],"superseded_by":null},
+    {"id":"m-calendar","title":"Disponibilité intervenants","text":"Lina ouvre à 09:00. Sam anime l'atelier à 10:00. Noor accompagne la zone calme à partir de 09:00. Installation possible entre 08:00 et 09:00.","source":"Message coordination / 3 octobre","date":"2026-10-03","tags":["planning","intervenants","horaire"],"superseded_by":null},
+    {"id":"m-loss","title":"Le lieu initial est indisponible","text":"Le Forum ferme pour maintenance. L'équipe doit choisir un autre espace pour l'ouverture dans 48 heures.","source":"Alerte lieu / 4 octobre","date":"2026-10-04","tags":["lieu","indisponible","48 heures"],"superseded_by":null}
+  ],
+  "spaces": [
+    {"id":"pavillon","name":"Pavillon des possibles","capacity":150,"cost":2800,"accessible":true,"aisle_cm":160,"quiet_capacity":12,"zones":[{"id":"scene","name":"Agora","capacity":70,"x":5,"y":8,"w":55,"h":42},{"id":"atelier","name":"Fabrique","capacity":68,"x":63,"y":8,"w":32,"h":72},{"id":"calme","name":"Oasis calme","capacity":12,"x":5,"y":58,"w":40,"h":30}]},
+    {"id":"halle","name":"Halle orbitale","capacity":120,"cost":2300,"accessible":true,"aisle_cm":140,"quiet_capacity":12,"zones":[{"id":"scene","name":"Agora","capacity":60,"x":5,"y":8,"w":55,"h":42},{"id":"atelier","name":"Fabrique","capacity":48,"x":63,"y":8,"w":32,"h":72},{"id":"calme","name":"Oasis calme","capacity":12,"x":5,"y":58,"w":40,"h":30}]},
+    {"id":"loft","name":"Loft panoramique","capacity":100,"cost":1900,"accessible":false,"aisle_cm":90,"quiet_capacity":0,"zones":[{"id":"scene","name":"Agora","capacity":60,"x":5,"y":8,"w":55,"h":42},{"id":"atelier","name":"Fabrique","capacity":40,"x":63,"y":8,"w":32,"h":72},{"id":"calme","name":"Oasis calme","capacity":0,"x":5,"y":58,"w":40,"h":30}]}
+  ],
+  "resources": [
+    {"id":"led","name":"Mur LED silencieux","kind":"display","cost":750,"available":true,"allowed_zones":["scene","atelier"]},
+    {"id":"screen","name":"Écran mobile de secours","kind":"display","cost":420,"available":true,"allowed_zones":["scene","atelier"]},
+    {"id":"audio","name":"Sonorisation directionnelle","kind":"audio","cost":350,"available":true,"allowed_zones":["scene"]},
+    {"id":"table-a","name":"Îlot découverte A","kind":"table","cost":180,"available":true,"allowed_zones":["atelier"]},
+    {"id":"table-b","name":"Îlot découverte B","kind":"table","cost":180,"available":true,"allowed_zones":["atelier"]},
+    {"id":"quiet","name":"Assises et cloisons calmes","kind":"quiet","cost":300,"available":true,"allowed_zones":["calme"]},
+    {"id":"signs","name":"Signalétique accessible","kind":"signs","cost":140,"available":true,"allowed_zones":["scene","atelier","calme"]}
+  ],
+  "calendar": [
+    {"id":"lina","name":"Lina · ouverture","start":"09:00","end":"10:00","zone":"scene"},
+    {"id":"sam","name":"Sam · découverte","start":"10:00","end":"12:00","zone":"atelier"},
+    {"id":"noor","name":"Noor · accueil calme","start":"09:00","end":"12:00","zone":"calme"}
+  ]
+}
